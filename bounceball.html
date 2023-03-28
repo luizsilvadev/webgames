@@ -1,0 +1,141 @@
+<html>
+  <head>
+    <script>
+      document.addEventListener("DOMContentLoaded", function () {
+        const ball = document.createElement("div");
+        ball.style.width = "50px";
+        ball.style.height = "50px";
+        ball.style.backgroundColor = "red";
+        ball.style.borderRadius = "50%";
+        ball.style.position = "absolute";
+        ball.style.top = "350px";
+        ball.style.left = "0px";
+        document.body.appendChild(ball);
+
+        const blocks = [];
+        var widthBlock = (window.innerWidth - 2) / 20;
+        for (let i = 0; i < 20; i++) {
+          for (let j = 0; j < 5; j++) {
+            const block = document.createElement("div");
+            block.style.width = widthBlock + "px";
+            block.style.height = "50px";
+            block.style.backgroundColor = "blue";
+            block.style.border = "1px solid white";
+            block.style.position = "absolute";
+            block.style.top = j * 50 + "px";
+            block.style.left = i * widthBlock + "px";
+            document.body.appendChild(block);
+            blocks.push(block);
+          }
+        }
+
+        const bar = document.createElement("div");
+        bar.style.width = "200px";
+        bar.style.height = "50px";
+        bar.style.backgroundColor = "black";
+        //bar.style.border = "1px solid white";
+        bar.style.position = "absolute";
+        bar.style.bottom = "0px";
+        bar.style.left = "0px";
+        document.body.appendChild(bar);
+
+        let angle = 35 + Math.floor(Math.random() * 20);
+        let speed = 8;
+        let barX = 0;
+        const keys = [];
+
+        function moveBall() {
+          let x = parseInt(ball.style.left);
+          let y = parseInt(ball.style.top);
+          let width = parseInt(window.innerWidth);
+          let height = parseInt(window.innerHeight);
+          let radians = (angle * Math.PI) / 180;
+          let xStep = Math.cos(radians) * speed;
+          let yStep = Math.sin(radians) * speed;
+          x += xStep;
+          y += yStep;
+          if (x < 0) {
+            x = 0;
+            angle = 180 - angle;
+          }
+          if (x > width - 50) {
+            x = width - 50;
+            angle = 180 - angle;
+          }
+          if (y < 0) {
+            y = 0;
+            angle = 360 - angle;
+          }
+          if (y > height - 50) {
+            clearInterval(game);
+            alert("Game Over");
+          }
+          ball.style.left = x + "px";
+          ball.style.top = y + "px";
+          checkCollision();
+        }
+
+        function checkCollision() {
+          const ballRect = ball.getBoundingClientRect();
+          for (let i = 0; i < blocks.length; i++) {
+            const block = blocks[i];
+            const blockRect = block.getBoundingClientRect();
+            if (
+              ballRect.bottom >= blockRect.top &&
+              ballRect.top <= blockRect.bottom &&
+              ballRect.right >= blockRect.left &&
+              ballRect.left <= blockRect.right
+            ) {
+              blocks.splice(i, 1);
+              block.parentNode.removeChild(block);
+              const radians = (angle * Math.PI) / 180;
+              const absAngle = Math.abs((angle % 90) - 45) - 45;
+              angle =
+                (absAngle + 90 + Math.round(Math.random() * 30 - 15)) % 360;
+              //speed += 0.5;
+              break;
+            }
+          }
+          const barRect = bar.getBoundingClientRect();
+          if (
+            ballRect.bottom >= barRect.top &&
+            ballRect.top <= barRect.bottom &&
+            ballRect.right >= barRect.left &&
+            ballRect.left <= barRect.right
+          ) {
+            angle = 360 - angle;
+          }
+        }
+
+        function moveBar() {
+          if (keys[37] && barX > 0) {
+            barX -= 10;
+          }
+          if (keys[39]) {
+            if (barX + 200 >= window.innerWidth)
+            barX = window.innerWidth - 200;
+            else 
+            barX += 10;
+          }
+          bar.style.left = barX + "px";
+        }
+
+        function loop() {
+          moveBall();
+          moveBar();
+        }
+
+        document.addEventListener("keydown", function (e) {
+          keys[e.keyCode] = true;
+        });
+
+        document.addEventListener("keyup", function (e) {
+          keys[e.keyCode] = false;
+        });
+
+        const game = setInterval(loop, 20);
+      });
+    </script>
+  </head>
+  <body style="margin: 0; overflow: hidden;"></body>
+</html>
